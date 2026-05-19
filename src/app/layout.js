@@ -7,8 +7,8 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: "Salley's Jar - Nigerian Pastry Delivery",
-  description: "Fresh artisanal pastries delivered to your doorstep. Order from Salley's Jar exclusive selection of baked goods, proteins, drinks, and ready-made mixes. Same-day delivery available.",
+  title: "Salley's Jar - Pastry Delivery",
+  description: "Fresh pastries delivered to your doorstep. Order from Salley's Jar exclusive selection of baked goods, proteins, drinks, and ready-made mixes. Same-day delivery available.",
 };
 
 export default function RootLayout({ children }) {
