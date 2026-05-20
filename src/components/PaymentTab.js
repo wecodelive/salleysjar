@@ -291,10 +291,10 @@ export default function PaymentTab({ items = [], onOrderPlaced, deliveryFee = 15
                 <span className="text-[#79716B]">Subtotal</span>
                 <span className="text-[#1C1917]">₦{subtotal.toLocaleString()}</span>
               </div>
-              <div className="flex justify-between text-xs md:text-sm">
+              {/* <div className="flex justify-between text-xs md:text-sm">
                 <span className="text-[#79716B]">Delivery</span>
                 <span className="text-[#1C1917]">₦{deliveryFee.toLocaleString()}</span>
-              </div>
+              </div> */}
               <div className="flex justify-between text-base md:text-lg font-medium pt-3 border-t border-[#E7E5E4] mt-4">
                 <span className="text-[#1C1917]">Total</span>
                 <span className="text-[#1C1917]">₦{total.toLocaleString()}</span>
