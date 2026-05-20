@@ -149,7 +149,7 @@ export const menuItems = {
                     price: 2200,
                     unit: "combo",
                     time: 15,
-                    image: "/images/combo-economy.png",
+                    image: "/images/combo-economys.png",
                 },
                 {
                     id: 14,
@@ -158,7 +158,7 @@ export const menuItems = {
                     price: 2500,
                     unit: "combo",
                     time: 30,
-                    image: "/images/combo-standard.png",
+                    image: "/images/combo-standards.png",
                 },
                 {
                     id: 15,
@@ -167,7 +167,7 @@ export const menuItems = {
                     price: 3500,
                     unit: "combo",
                     time: 15,
-                    image: "/images/combo-classic.png",
+                    image: "/images/combo-classics.png",
                 },
                 {
                     id: 16,
@@ -176,7 +176,7 @@ export const menuItems = {
                     price: 5500,
                     unit: "combo",
                     time: 15,
-                    image: "/images/combo-premium.png",
+                    image: "/images/combo-premiums.png",
                 },
                 {
                     id: 17,
@@ -185,7 +185,7 @@ export const menuItems = {
                     price: 2500,
                     unit: "combo",
                     time: 15,
-                    image: "/images/combo-no-wahala.png",
+                    image: "/images/combo-no-wahalas.png",
                 },
                 {
                     id: 18,
@@ -194,7 +194,7 @@ export const menuItems = {
                     price: 9000,
                     unit: "combo",
                     time: 15,
-                    image: "/images/combo-no-wahala.png",
+                    image: "/images/combo-no-wahalas.png",
                     // image: "/images/combo-big-salley.png",
                 },
             ],
