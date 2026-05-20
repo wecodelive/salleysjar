@@ -10,8 +10,8 @@ export const deliveryConfig = {
     },
 
     // Pricing: base fee + per-km rate
-    baseFee: 250,
-    perKmRate: 150,
+    baseFee: 800,
+    perKmRate: 100,
 
     // Delivery constraints
     maxDeliveryRadius: 50, // km - max distance we deliver

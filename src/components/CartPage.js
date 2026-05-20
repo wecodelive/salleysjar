@@ -1,42 +1,68 @@
 "use client";
 
-import { ChevronLeft, Trash2 } from "lucide-react";
+import { ChevronLeft, Trash2, AlertCircle } from "lucide-react";
 import Head from "next/head";
 import Image from "next/image";
 import { useState } from "react";
+import { validateBasketDetails } from "@/lib/formValidator";
 import Header from "./header";
 import DetailsTab from "./DetailsTab";
 import PaymentTab from "./PaymentTab";
 import OrderConfirmation from "./OrderConfirmation";
 
-export default function CartPage({ isOpen, onClose, items = [], onOrderConfirmed }) {
-    const [quantity, setQuantity] = useState({});
+export default function CartPage({ isOpen, onClose, items = [], onOrderConfirmed, onRemoveItem, onUpdateQuantity }) {
     const [activeTab, setActiveTab] = useState("basket");
     const [orderPlaced, setOrderPlaced] = useState(false);
     const [customerName, setCustomerName] = useState("");
     const [dynamicDeliveryFee, setDynamicDeliveryFee] = useState(0);
+    const [basketValidationError, setBasketValidationError] = useState(null);
+    const [customerDetails, setCustomerDetails] = useState({
+        fullName: "",
+        email: "",
+        phone: "",
+        address: "",
+        city: "",
+        deliveryMode: "delivery",
+        deliveryDate: "",
+        deliveryTime: "",
+        notes: "",
+    });
 
     if (!isOpen) return null;
 
     const handleBackToShop = () => {
         setOrderPlaced(false);
         setActiveTab("basket");
-        setQuantity({});
         setCustomerName("");
         setDynamicDeliveryFee(1500);
+        setCustomerDetails({
+            fullName: "",
+            email: "",
+            phone: "",
+            address: "",
+            city: "",
+            deliveryMode: "delivery",
+            deliveryDate: "",
+            deliveryTime: "",
+            notes: "",
+        });
         if (onOrderConfirmed) {
             onOrderConfirmed();
         }
         onClose();
     };
 
+    const handleUpdateCustomerDetails = (details) => {
+        setCustomerDetails(prev => ({ ...prev, ...details }));
+    };
+
     const handleUpdateDeliveryFee = (fee) => {
         setDynamicDeliveryFee(fee !== null && fee !== undefined ? fee : 0);
     };
 
-    const subtotal = items.reduce((sum, item, idx) => {
-        const qty = quantity[idx] || item.quantity || 1;
-        return sum + (item.price || 0) * qty;
+    const subtotal = items.reduce((sum, item) => {
+        const quantity = item.quantity || 1;
+        return sum + (item.price || 0) * quantity;
     }, 0);
 
     const deliveryFee = dynamicDeliveryFee;
@@ -44,15 +70,27 @@ export default function CartPage({ isOpen, onClose, items = [], onOrderConfirmed
     const total = subtotal + deliveryFee;
     const remaining = Math.max(0, minOrder - subtotal);
 
-    const handleQuantityChange = (index, newQuantity) => {
-        if (newQuantity >= 1) {
-            setQuantity({ ...quantity, [index]: newQuantity });
+    const handleQuantityChange = (itemId, newQuantity) => {
+        if (onUpdateQuantity) {
+            onUpdateQuantity(itemId, newQuantity);
         }
     };
 
-    const handleRemove = (index) => {
-        // This would need to be handled by parent component
-        console.log("Remove item:", index);
+    const handleRemove = (itemId) => {
+        if (onRemoveItem) {
+            onRemoveItem(itemId);
+        }
+    };
+
+    const handleContinueToDetails = () => {
+        // Validate basket before allowing navigation
+        const validation = validateBasketDetails(items, subtotal, minOrder);
+        if (!validation.isValid) {
+            setBasketValidationError(validation.errors.basket || "Please check your order");
+            return;
+        }
+        setBasketValidationError(null);
+        setActiveTab("details");
     };
 
     return (
@@ -107,13 +145,13 @@ export default function CartPage({ isOpen, onClose, items = [], onOrderConfirmed
                                 {/* Cart Items */}
                                 <div className="space-y-4 mb-8">
                                     {items.length > 0 ? (
-                                        items.map((item, idx) => {
-                                            const itemQuantity = quantity[idx] || item.quantity || 1;
+                                        items.map((item) => {
+                                            const itemQuantity = item.quantity || 1;
                                             const itemPrice = (item.price || 0) * itemQuantity;
 
                                             return (
                                                 <div
-                                                    key={idx}
+                                                    key={item.id}
                                                     className="flex gap-3 p-3 bg-[#F5F5F5] rounded-lg"
                                                 >
                                                     {/* Item Image */}
@@ -142,7 +180,7 @@ export default function CartPage({ isOpen, onClose, items = [], onOrderConfirmed
                                                         <div className="flex items-center gap-2">
                                                             <button
                                                                 onClick={() =>
-                                                                    handleQuantityChange(idx, itemQuantity - 1)
+                                                                    handleQuantityChange(item.id, itemQuantity - 1)
                                                                 }
                                                                 className="text-[#79716B] hover:text-[#1C1917]"
                                                             >
@@ -153,7 +191,7 @@ export default function CartPage({ isOpen, onClose, items = [], onOrderConfirmed
                                                             </span>
                                                             <button
                                                                 onClick={() =>
-                                                                    handleQuantityChange(idx, itemQuantity + 1)
+                                                                    handleQuantityChange(item.id, itemQuantity + 1)
                                                                 }
                                                                 className="text-[#79716B] hover:text-[#1C1917]"
                                                             >
@@ -168,7 +206,7 @@ export default function CartPage({ isOpen, onClose, items = [], onOrderConfirmed
                                                             ₦{itemPrice.toLocaleString()}
                                                         </span>
                                                         <button
-                                                            onClick={() => handleRemove(idx)}
+                                                            onClick={() => handleRemove(item.id)}
                                                             className="text-[#D6D3D1] hover:text-red-500"
                                                         >
                                                             <Trash2 className="h-4 w-4" />
@@ -185,11 +223,11 @@ export default function CartPage({ isOpen, onClose, items = [], onOrderConfirmed
                                 </div>
 
                                 {/* Ready Time Info */}
-                                <p className="text-xs md:text-sm text-[#79716B] mb-4">
+                                {/* <p className="text-xs md:text-sm text-[#79716B] mb-4">
                                     Ready in about 15 minutes from order time.
-                                </p>
+                                </p> */}
 
-                                {/* Delivery Warning */}
+                                {/* Delivery Warning & Validation Error */}
                                 {remaining > 0 && (
                                     <div className="bg-[#FEF3E2] border border-[#F59E0B] rounded p-3 md:p-4 mb-6">
                                         <p className="text-xs md:text-sm text-[#D97706]">
@@ -202,8 +240,15 @@ export default function CartPage({ isOpen, onClose, items = [], onOrderConfirmed
                                     </div>
                                 )}
 
+                                {basketValidationError && (
+                                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 flex gap-3">
+                                        <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                                        <p className="text-sm text-red-700">{basketValidationError}</p>
+                                    </div>
+                                )}
+
                                 {/* Continue Button - Hidden on Desktop */}
-                                <button onClick={() => setActiveTab("details")} className="w-full lg:hidden bg-[#1C1917] text-white py-3 md:py-4 font-medium tracking-[1.6px] hover:bg-[#2D2824] transition-colors rounded mb-8 text-sm md:text-base">
+                                <button onClick={handleContinueToDetails} className="w-full lg:hidden bg-[#1C1917] text-white py-3 md:py-4 font-medium tracking-[1.6px] hover:bg-[#2D2824] transition-colors rounded mb-8 text-sm md:text-base">
                                     CONTINUE
                                 </button>
                             </div>
@@ -215,10 +260,10 @@ export default function CartPage({ isOpen, onClose, items = [], onOrderConfirmed
                                         SUMMARY
                                     </h3>
 
-                                    {items.map((item, idx) => {
-                                        const itemQuantity = quantity[idx] || item.quantity || 1;
+                                    {items.map((item) => {
+                                        const itemQuantity = item.quantity || 1;
                                         return (
-                                            <div key={idx} className="flex justify-between text-xs md:text-sm mb-4 pb-4 border-b border-[#E7E5E4]">
+                                            <div key={item.id} className="flex justify-between text-xs md:text-sm mb-4 pb-4 border-b border-[#E7E5E4]">
                                                 <span className="text-[#79716B]">
                                                     {itemQuantity} × {item.name}
                                                 </span>
@@ -251,7 +296,7 @@ export default function CartPage({ isOpen, onClose, items = [], onOrderConfirmed
                                     </div>
 
                                     {/* Continue Button - Shown on Desktop */}
-                                    <button onClick={() => setActiveTab("details")} className="hidden lg:block w-full bg-[#1C1917] text-white py-3 md:py-4 font-medium tracking-[1.6px] hover:bg-[#2D2824] transition-colors rounded mt-8 text-sm md:text-base">
+                                    <button onClick={handleContinueToDetails} className="hidden lg:block w-full bg-[#1C1917] text-white py-3 md:py-4 font-medium tracking-[1.6px] hover:bg-[#2D2824] transition-colors rounded mt-8 text-sm md:text-base">
                                         CONTINUE
                                     </button>
                                 </div>
@@ -266,6 +311,7 @@ export default function CartPage({ isOpen, onClose, items = [], onOrderConfirmed
                         onNavigate={setActiveTab}
                         onUpdateCustomerName={setCustomerName}
                         onUpdateDeliveryFee={handleUpdateDeliveryFee}
+                        onUpdateCustomerDetails={handleUpdateCustomerDetails}
                     />
                 )}
 
@@ -274,6 +320,7 @@ export default function CartPage({ isOpen, onClose, items = [], onOrderConfirmed
                         items={items}
                         onOrderPlaced={() => setOrderPlaced(true)}
                         deliveryFee={deliveryFee}
+                        customerDetails={customerDetails}
                     />
                 )}
 

@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { calculateDistanceAndFee } from "@/lib/distanceCalculator";
+import { validateDeliveryDetails } from "@/lib/formValidator";
 import AddressAutocomplete from "./AddressAutocomplete";
+import { AlertCircle } from "lucide-react";
 
-export default function DetailsTab({ items = [], onNavigate, onUpdateCustomerName, onUpdateDeliveryFee }) {
+export default function DetailsTab({ items = [], onNavigate, onUpdateCustomerName, onUpdateDeliveryFee, onUpdateCustomerDetails }) {
   const [deliveryMode, setDeliveryMode] = useState("delivery");
   const [formData, setFormData] = useState({
     fullName: "",
@@ -17,10 +19,28 @@ export default function DetailsTab({ items = [], onNavigate, onUpdateCustomerNam
     notes: "",
   });
 
-  const [deliveryFee, setDeliveryFee] = useState(250); // Initialize to base fee
+  const [deliveryFee, setDeliveryFee] = useState(250);
   const [distance, setDistance] = useState(null);
   const [calculating, setCalculating] = useState(false);
   const [distanceError, setDistanceError] = useState(null);
+  const [validationErrors, setValidationErrors] = useState({});
+  const [lastCustomerDetailsUpdate, setLastCustomerDetailsUpdate] = useState(null);
+
+  // Notify parent of customer details changes (only when data actually changes)
+  useEffect(() => {
+    if (onUpdateCustomerDetails) {
+      const customerData = {
+        ...formData,
+        deliveryMode,
+      };
+      // Only call callback if data actually changed
+      const dataString = JSON.stringify(customerData);
+      if (dataString !== lastCustomerDetailsUpdate) {
+        setLastCustomerDetailsUpdate(dataString);
+        onUpdateCustomerDetails(customerData);
+      }
+    }
+  }, [formData, deliveryMode]);
 
   // Calculate delivery fee when address or city changes
   useEffect(() => {
@@ -74,10 +94,38 @@ export default function DetailsTab({ items = [], onNavigate, onUpdateCustomerNam
       [name]: value,
     }));
 
+    // Clear error for this field when user starts typing
+    if (validationErrors[name]) {
+      setValidationErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
+
     // Update customer name when full name field changes
     if (name === "fullName" && onUpdateCustomerName) {
       onUpdateCustomerName(value);
     }
+  };
+
+  const handleContinueToPayment = () => {
+    const validation = validateDeliveryDetails(formData, deliveryMode);
+
+    if (!validation.isValid) {
+      setValidationErrors(validation.errors);
+      // Scroll to first error
+      setTimeout(() => {
+        const firstErrorField = document.querySelector('[name="' + Object.keys(validation.errors)[0] + '"]');
+        if (firstErrorField) {
+          firstErrorField.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 100);
+      return;
+    }
+
+    setValidationErrors({});
+    onNavigate?.("payment");
   };
 
   const subtotal = items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
@@ -119,6 +167,21 @@ export default function DetailsTab({ items = [], onNavigate, onUpdateCustomerNam
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
         {/* Left: Form Fields */}
         <div className="lg:col-span-2">
+          {/* Validation Errors Summary */}
+          {/* {Object.keys(validationErrors).length > 0 && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 flex gap-3">
+              <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <h4 className="text-sm font-medium text-red-900 mb-2">Please fix the following errors:</h4>
+                <ul className="text-sm text-red-700 space-y-1">
+                  {Object.values(validationErrors).map((error, idx) => (
+                    <li key={idx}>• {error}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )} */}
+
           <div className="space-y-4">
             {/* Row 1: Full Name & Phone */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
@@ -132,9 +195,13 @@ export default function DetailsTab({ items = [], onNavigate, onUpdateCustomerNam
                   name="fullName"
                   value={formData.fullName}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-[#D6D3D1] rounded bg-[#F5F5F5] text-sm text-[#1C1917] placeholder-[#A6A09B] focus:outline-none focus:border-[#1C1917]"
+                  className={`w-full px-3 py-2 border rounded bg-[#F5F5F5] text-sm text-[#1C1917] placeholder-[#A6A09B] focus:outline-none transition-colors ${validationErrors.fullName ? "border-red-500 focus:border-red-500" : "border-[#D6D3D1] focus:border-[#1C1917]"
+                    }`}
                   placeholder="Your full name"
                 />
+                {validationErrors.fullName && (
+                  <p className="text-xs text-red-600 mt-1">{validationErrors.fullName}</p>
+                )}
               </div>
 
               {/* Phone */}
@@ -147,9 +214,13 @@ export default function DetailsTab({ items = [], onNavigate, onUpdateCustomerNam
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-[#D6D3D1] rounded bg-[#F5F5F5] text-sm text-[#1C1917] placeholder-[#A6A09B] focus:outline-none focus:border-[#1C1917]"
+                  className={`w-full px-3 py-2 border rounded bg-[#F5F5F5] text-sm text-[#1C1917] placeholder-[#A6A09B] focus:outline-none transition-colors ${validationErrors.phone ? "border-red-500 focus:border-red-500" : "border-[#D6D3D1] focus:border-[#1C1917]"
+                    }`}
                   placeholder="+234 800 000 0000"
                 />
+                {validationErrors.phone && (
+                  <p className="text-xs text-red-600 mt-1">{validationErrors.phone}</p>
+                )}
               </div>
             </div>
 
@@ -163,9 +234,13 @@ export default function DetailsTab({ items = [], onNavigate, onUpdateCustomerNam
                 name="email"
                 value={formData.email}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-[#D6D3D1] rounded bg-[#F5F5F5] text-sm text-[#1C1917] placeholder-[#A6A09B] focus:outline-none focus:border-[#1C1917]"
+                className={`w-full px-3 py-2 border rounded bg-[#F5F5F5] text-sm text-[#1C1917] placeholder-[#A6A09B] focus:outline-none transition-colors ${validationErrors.email ? "border-red-500 focus:border-red-500" : "border-[#D6D3D1] focus:border-[#1C1917]"
+                  }`}
                 placeholder="your@email.com"
               />
+              {validationErrors.email && (
+                <p className="text-xs text-red-600 mt-1">{validationErrors.email}</p>
+              )}
             </div>
 
             {/* Delivery Address */}
@@ -178,8 +253,12 @@ export default function DetailsTab({ items = [], onNavigate, onUpdateCustomerNam
                   <AddressAutocomplete
                     value={formData.address}
                     onChange={handleInputChange}
+                    hasError={!!validationErrors.address}
                     placeholder="Enter your address"
                   />
+                  {validationErrors.address && (
+                    <p className="text-xs text-red-600 mt-1">{validationErrors.address}</p>
+                  )}
                 </div>
 
                 {/* City / Area */}
@@ -192,9 +271,13 @@ export default function DetailsTab({ items = [], onNavigate, onUpdateCustomerNam
                     name="city"
                     value={formData.city}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-[#D6D3D1] rounded bg-[#F5F5F5] text-sm text-[#1C1917] placeholder-[#A6A09B] focus:outline-none focus:border-[#1C1917]"
+                    className={`w-full px-3 py-2 border rounded bg-[#F5F5F5] text-sm text-[#1C1917] placeholder-[#A6A09B] focus:outline-none transition-colors ${validationErrors.city ? "border-red-500 focus:border-red-500" : "border-[#D6D3D1] focus:border-[#1C1917]"
+                      }`}
                     placeholder="Your area"
                   />
+                  {validationErrors.city && (
+                    <p className="text-xs text-red-600 mt-1">{validationErrors.city}</p>
+                  )}
                 </div>
 
                 {/* Distance & Delivery Fee Indicator */}
@@ -237,8 +320,12 @@ export default function DetailsTab({ items = [], onNavigate, onUpdateCustomerNam
                   name="date"
                   value={formData.date}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-[#D6D3D1] rounded bg-[#F5F5F5] text-sm text-[#1C1917] focus:outline-none focus:border-[#1C1917]"
+                  className={`w-full px-3 py-2 border rounded bg-[#F5F5F5] text-sm text-[#1C1917] focus:outline-none transition-colors ${validationErrors.date ? "border-red-500 focus:border-red-500" : "border-[#D6D3D1] focus:border-[#1C1917]"
+                    }`}
                 />
+                {validationErrors.date && (
+                  <p className="text-xs text-red-600 mt-1">{validationErrors.date}</p>
+                )}
               </div>
 
               {/* Time Window */}
@@ -250,13 +337,17 @@ export default function DetailsTab({ items = [], onNavigate, onUpdateCustomerNam
                   name="timeWindow"
                   value={formData.timeWindow}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-[#D6D3D1] rounded bg-[#F5F5F5] text-sm text-[#1C1917] focus:outline-none focus:border-[#1C1917]"
+                  className={`w-full px-3 py-2 border rounded bg-[#F5F5F5] text-sm text-[#1C1917] focus:outline-none transition-colors ${validationErrors.timeWindow ? "border-red-500 focus:border-red-500" : "border-[#D6D3D1] focus:border-[#1C1917]"
+                    }`}
                 >
                   <option value="">Select time window</option>
                   <option value="morning">8am - 12pm</option>
                   <option value="afternoon">12pm - 4pm</option>
                   <option value="evening">4pm - 7pm</option>
                 </select>
+                {validationErrors.timeWindow && (
+                  <p className="text-xs text-red-600 mt-1">{validationErrors.timeWindow}</p>
+                )}
               </div>
             </div>
 
@@ -277,7 +368,7 @@ export default function DetailsTab({ items = [], onNavigate, onUpdateCustomerNam
           </div>
 
           {/* Continue Button - Hidden on Desktop */}
-          <button onClick={() => onNavigate?.("payment")} className="w-full lg:hidden bg-[#1C1917] text-white py-3 md:py-4 font-medium tracking-[1.6px] hover:bg-[#2D2824] transition-colors rounded mt-8 text-sm md:text-base">
+          <button onClick={handleContinueToPayment} className="w-full lg:hidden bg-[#1C1917] text-white py-3 md:py-4 font-medium tracking-[1.6px] hover:bg-[#2D2824] transition-colors rounded mt-8 text-sm md:text-base">
             CONTINUE TO PAYMENT
           </button>
         </div>
@@ -316,7 +407,7 @@ export default function DetailsTab({ items = [], onNavigate, onUpdateCustomerNam
             </div>
 
             {/* Continue Button - Shown on Desktop */}
-            <button onClick={() => onNavigate?.("payment")} className="hidden lg:block w-full bg-[#1C1917] text-white py-3 md:py-4 font-medium tracking-[1.6px] hover:bg-[#2D2824] transition-colors rounded mt-8 text-sm md:text-base">
+            <button onClick={handleContinueToPayment} className="hidden lg:block w-full bg-[#1C1917] text-white py-3 md:py-4 font-medium tracking-[1.6px] hover:bg-[#2D2824] transition-colors rounded mt-8 text-sm md:text-base">
               CONTINUE TO PAYMENT
             </button>
           </div>

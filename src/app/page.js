@@ -8,14 +8,15 @@ import { Clock, MapPin, MessageCircle } from "lucide-react";
 import CategorySection from "@/components/CategorySection";
 import { menuItems } from "@/data/menuItems";
 import { useState } from "react";
+import { useCart } from "@/hooks/useCart";
 
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [cart, setCart] = useState([]);
+  const { cart, isLoading, addToCart, clearCart, removeFromCart, updateQuantity } = useCart();
   const [isCartOpen, setIsCartOpen] = useState(false);
 
   const handleAddToCart = (product) => {
-    setCart([...cart, product]);
+    addToCart(product);
   };
 
   const cartTotal = cart.reduce((sum, item) => {
@@ -84,7 +85,7 @@ export default function Home() {
           <div className="flex items-start gap-3 md:gap-4">
             <Clock className="h-5 md:h-6 text-[#44403B] flex-shrink-0 mt-1" />
             <div>
-              <p className="text-[#1C1917] font-medium leading-6 text-sm md:text-base">Order by before 6pm</p>
+              <p className="text-[#1C1917] font-medium leading-6 text-sm md:text-base">Order before 6pm</p>
               <p className="text-[#79716B] leading-6 text-sm">For same-day delivery</p>
             </div>
           </div>
@@ -135,8 +136,10 @@ export default function Home() {
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
         items={cart}
+        onRemoveItem={removeFromCart}
+        onUpdateQuantity={updateQuantity}
         onOrderConfirmed={() => {
-          setCart([]);
+          clearCart();
           setIsCartOpen(false);
         }}
       />
