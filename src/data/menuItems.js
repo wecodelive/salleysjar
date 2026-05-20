@@ -38,7 +38,7 @@ export const menuItems = {
                     price: 1500,
                     unit: "pack",
                     time: 25,
-                    image: "/images/puff-puff-pack.png",
+                    image: "/images/puff-puff-packs.png",
                 },
                 {
                     id: 5,
