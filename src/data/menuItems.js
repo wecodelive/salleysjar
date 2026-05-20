@@ -28,7 +28,7 @@ export const menuItems = {
                     description: "Soft, fluffy fried dough — a Naija classic.",
                     price: 100,
                     unit: "each",
-                    time: 20,
+                    time: 10,
                     image: "/images/puff-puffs.png",
                 },
                 {

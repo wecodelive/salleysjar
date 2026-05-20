@@ -1,11 +1,15 @@
 "use client";
 
-import { Copy, Check } from "lucide-react";
+import { Copy, Check, AlertCircle } from "lucide-react";
 import { useState } from "react";
+import { validatePaymentDetails } from "@/lib/formValidator";
 
-export default function PaymentTab({ items = [], onOrderPlaced, deliveryFee = 1500 }) {
+export default function PaymentTab({ items = [], onOrderPlaced, deliveryFee = 1500, customerDetails = {} }) {
   const [paymentMethod, setPaymentMethod] = useState("transfer");
   const [copied, setCopied] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
+  const [validationErrors, setValidationErrors] = useState({});
 
   const bankDetails = {
     bank: "OPay",
@@ -23,13 +27,88 @@ export default function PaymentTab({ items = [], onOrderPlaced, deliveryFee = 15
   const subtotal = items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
   const total = subtotal + deliveryFee;
 
+  const submitOrder = async () => {
+    try {
+      setIsSubmitting(true);
+      setSubmitError(null);
+      setValidationErrors({});
+
+      // Validate payment details
+      const validation = validatePaymentDetails(customerDetails, paymentMethod);
+      if (!validation.isValid) {
+        setValidationErrors(validation.errors);
+        setSubmitError(Object.values(validation.errors)[0] || "Please complete your payment information");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (!customerDetails.email || !customerDetails.phone || !customerDetails.fullName) {
+        setSubmitError("Please complete your delivery details");
+        setIsSubmitting(false);
+        return;
+      }
+
+      const orderData = {
+        email: customerDetails.email,
+        phone: customerDetails.phone,
+        fullName: customerDetails.fullName,
+        address: customerDetails.address || null,
+        city: customerDetails.city || null,
+        items: items.map(item => ({
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity || 1,
+        })),
+        subtotal,
+        deliveryFee,
+        total,
+        paymentMethod,
+        deliveryMode: customerDetails.deliveryMode || "delivery",
+        deliveryDate: customerDetails.deliveryDate || null,
+        deliveryTime: customerDetails.deliveryTime || null,
+        notes: customerDetails.notes || null,
+      };
+
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to create order");
+      }
+
+      const result = await response.json();
+      console.log("Order created:", result);
+
+      if (onOrderPlaced) {
+        onOrderPlaced();
+      }
+    } catch (error) {
+      console.error("Order submission error:", error);
+      setSubmitError(error.message || "Failed to process order");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <>
-      {/* Payment Form and Summary Layout - Side by side on desktop */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
         {/* Left: Payment Form */}
         <div className="lg:col-span-2">
           <div className="space-y-6 pb-8">
+            {/* Error Message */}
+            {submitError && (
+              <div className="bg-red-50 border border-red-200 rounded p-4">
+                <p className="text-sm text-red-700">{submitError}</p>
+              </div>
+            )}
+
             {/* Payment Method Selection */}
             <div>
               <h3 className="text-[#1C1917] font-medium mb-4">Payment</h3>
@@ -126,8 +205,8 @@ export default function PaymentTab({ items = [], onOrderPlaced, deliveryFee = 15
 
                   <p className="text-xs text-[#79716B]">Security processed. Demo, no real charge</p>
 
-                  <button onClick={onOrderPlaced} className="w-full lg:hidden bg-[#1C1917] text-white py-3 md:py-4 font-medium tracking-[1.6px] hover:bg-[#2D2824] transition-colors rounded text-sm md:text-base">
-                    PAY ₦{total.toLocaleString()}
+                  <button onClick={submitOrder} disabled={isSubmitting} className="w-full lg:hidden bg-[#1C1917] text-white py-3 md:py-4 font-medium tracking-[1.6px] hover:bg-[#2D2824] disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded text-sm md:text-base">
+                    {isSubmitting ? "Processing..." : `PAY ₦${total.toLocaleString()}`}
                   </button>
                 </div>
               )}
@@ -164,8 +243,8 @@ export default function PaymentTab({ items = [], onOrderPlaced, deliveryFee = 15
                     After transfer, send proof to WhatsApp +234 810 685 8963
                   </p>
 
-                  <button onClick={onOrderPlaced} className="w-full lg:hidden bg-[#1C1917] text-white py-3 md:py-4 font-medium tracking-[1.6px] hover:bg-[#2D2824] transition-colors rounded text-sm md:text-base">
-                    I'VE MADE THE TRANSFER
+                  <button onClick={submitOrder} disabled={isSubmitting} className="w-full lg:hidden bg-[#1C1917] text-white py-3 md:py-4 font-medium tracking-[1.6px] hover:bg-[#2D2824] disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded text-sm md:text-base">
+                    {isSubmitting ? "Processing..." : "I'VE MADE THE TRANSFER"}
                   </button>
                 </div>
               )}
@@ -182,8 +261,8 @@ export default function PaymentTab({ items = [], onOrderPlaced, deliveryFee = 15
                     <p className="text-lg font-medium text-[#1C1917]">₦{total.toLocaleString()}</p>
                   </div>
 
-                  <button onClick={onOrderPlaced} className="w-full lg:hidden bg-[#1C1917] text-white py-3 md:py-4 font-medium tracking-[1.6px] hover:bg-[#2D2824] transition-colors rounded text-sm md:text-base">
-                    PLACE ORDER · ₦{total.toLocaleString()}
+                  <button onClick={submitOrder} disabled={isSubmitting} className="w-full lg:hidden bg-[#1C1917] text-white py-3 md:py-4 font-medium tracking-[1.6px] hover:bg-[#2D2824] disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded text-sm md:text-base">
+                    {isSubmitting ? "Processing..." : `PLACE ORDER · ₦${total.toLocaleString()}`}
                   </button>
                 </div>
               )}
@@ -224,18 +303,18 @@ export default function PaymentTab({ items = [], onOrderPlaced, deliveryFee = 15
 
             {/* Desktop Payment Buttons */}
             {paymentMethod === "card" && (
-              <button onClick={onOrderPlaced} className="hidden lg:block w-full bg-[#1C1917] text-white py-3 md:py-4 font-medium tracking-[1.6px] hover:bg-[#2D2824] transition-colors rounded mt-8 text-sm md:text-base">
-                PAY ₦{total.toLocaleString()}
+              <button onClick={submitOrder} disabled={isSubmitting} className="hidden lg:block w-full bg-[#1C1917] text-white py-3 md:py-4 font-medium tracking-[1.6px] hover:bg-[#2D2824] disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded mt-8 text-sm md:text-base">
+                {isSubmitting ? "Processing..." : `PAY ₦${total.toLocaleString()}`}
               </button>
             )}
             {paymentMethod === "transfer" && (
-              <button onClick={onOrderPlaced} className="hidden lg:block w-full bg-[#1C1917] text-white py-3 md:py-4 font-medium tracking-[1.6px] hover:bg-[#2D2824] transition-colors rounded mt-8 text-sm md:text-base">
-                I'VE MADE THE TRANSFER
+              <button onClick={submitOrder} disabled={isSubmitting} className="hidden lg:block w-full bg-[#1C1917] text-white py-3 md:py-4 font-medium tracking-[1.6px] hover:bg-[#2D2824] disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded mt-8 text-sm md:text-base">
+                {isSubmitting ? "Processing..." : "I'VE MADE THE TRANSFER"}
               </button>
             )}
             {paymentMethod === "cash" && (
-              <button onClick={onOrderPlaced} className="hidden lg:block w-full bg-[#1C1917] text-white py-3 md:py-4 font-medium tracking-[1.6px] hover:bg-[#2D2824] transition-colors rounded mt-8 text-sm md:text-base">
-                PLACE ORDER · ₦{total.toLocaleString()}
+              <button onClick={submitOrder} disabled={isSubmitting} className="hidden lg:block w-full bg-[#1C1917] text-white py-3 md:py-4 font-medium tracking-[1.6px] hover:bg-[#2D2824] disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded mt-8 text-sm md:text-base">
+                {isSubmitting ? "Processing..." : `PLACE ORDER · ₦${total.toLocaleString()}`}
               </button>
             )}
           </div>

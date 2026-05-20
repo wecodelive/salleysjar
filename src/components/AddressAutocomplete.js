@@ -7,6 +7,7 @@ export default function AddressAutocomplete({
     value,
     onChange,
     placeholder = "Enter your address",
+    hasError = false,
 }) {
     const [suggestions, setSuggestions] = useState([]);
     const [isOpen, setIsOpen] = useState(false);
@@ -128,7 +129,8 @@ export default function AddressAutocomplete({
                 }}
                 onKeyDown={handleKeyDown}
                 onFocus={() => value && suggestions.length > 0 && setIsOpen(true)}
-                className="w-full px-3 py-2 border border-[#D6D3D1] rounded bg-[#F5F5F5] text-sm text-[#1C1917] placeholder-[#A6A09B] focus:outline-none focus:border-[#1C1917]"
+                className={`w-full px-3 py-2 border rounded bg-[#F5F5F5] text-sm text-[#1C1917] placeholder-[#A6A09B] focus:outline-none transition-colors ${hasError ? "border-red-500 focus:border-red-500" : "border-[#D6D3D1] focus:border-[#1C1917]"
+                    }`}
                 placeholder={placeholder}
                 autoComplete="off"
             />
@@ -149,8 +151,8 @@ export default function AddressAutocomplete({
                                 key={index}
                                 onClick={() => selectSuggestion(suggestion)}
                                 className={`px-3 py-2 cursor-pointer text-sm transition-colors ${index === selectedIndex
-                                        ? "bg-[#1C1917] text-white"
-                                        : "hover:bg-[#F5F5F5] text-[#1C1917]"
+                                    ? "bg-[#1C1917] text-white"
+                                    : "hover:bg-[#F5F5F5] text-[#1C1917]"
                                     }`}
                             >
                                 <div className="font-medium">{suggestion.address}</div>
