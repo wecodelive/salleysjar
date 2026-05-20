@@ -37,7 +37,7 @@ export default function Home() {
       />
 
       {/* Category Filter Tabs */}
-      <div className="px-4 py-3 flex overflow-x-auto gap-2 border-[#E7E5E4] border-b scrollbar-hide">
+      <div className="px-4 md:px-8 lg:px-12 py-3 flex overflow-x-auto gap-2 md:gap-3 border-[#E7E5E4] border-b scrollbar-hide">
         <button
           onClick={() => setSelectedCategory("all")}
           className={`px-[13px] py-[11px] h-fit w-fit border rounded-full font-medium whitespace-nowrap transition-all ${selectedCategory === "all"
@@ -62,50 +62,55 @@ export default function Home() {
       </div>
 
       {/* Hero Section */}
-      <div className="px-4 py-8 flex flex-col gap-3 border-[#E7E5E4] border-b">
-        <h3 className="text-[#79716B] leading-6 tracking-[4.8px]">
+      <div className="px-4 md:px-8 lg:px-12 py-8 md:py-12 flex flex-col gap-3 md:gap-4 border-[#E7E5E4] border-b">
+        <h3 className="text-[#79716B] leading-6 tracking-[4.8px] text-sm">
           HALL WEEK • PRE-ORDER
         </h3>
 
-        <p className="text-[#1C1917] font-[500] text-2xl leading-9">
+        <p className="text-[#1C1917] font-medium text-2xl md:text-3xl lg:text-4xl leading-9 md:leading-12 max-w-3xl">
           Small chops, made fresh. Delivered or picked up.
         </p>
 
-        <p className="text-[#79716B] leading-6">
+        <p className="text-[#79716B] leading-6 max-w-2xl text-sm md:text-base">
           A short, honest menu of the things we love to make. Order ahead — we'll
           have it ready.
         </p>
       </div>
 
       {/* Info Section */}
-      <div className="flex flex-col px-4 border-[#E7E5E4] border-b">
-        <div className="flex items-center gap-2 border-[#E7E5E4] border-b py-2">
-          <Clock className="h-4 text-[#44403B]" />
-          <div>
-            <p className="text-[#1C1917] leading-6">Order by 4pm</p>
-            <p className="text-[#79716B] leading-6">Same-day delivery</p>
+      <div className="px-4 md:px-8 lg:px-12 py-6 md:py-8 border-[#E7E5E4] border-b">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+          {/* Info Box 1 */}
+          <div className="flex items-start gap-3 md:gap-4">
+            <Clock className="h-5 md:h-6 text-[#44403B] flex-shrink-0 mt-1" />
+            <div>
+              <p className="text-[#1C1917] font-medium leading-6 text-sm md:text-base">Order by 4pm</p>
+              <p className="text-[#79716B] leading-6 text-sm">Same-day delivery</p>
+            </div>
           </div>
-        </div>
 
-        <div className="flex items-center gap-2 border-[#E7E5E4] border-b py-2">
-          <MapPin className="h-4 text-[#44403B]" />
-          <div>
-            <p className="text-[#1C1917] leading-6">₦2,000 min order</p>
-            <p className="text-[#79716B] leading-6">Delivering across campus halls</p>
+          {/* Info Box 2 */}
+          <div className="flex items-start gap-3 md:gap-4">
+            <MapPin className="h-5 md:h-6 text-[#44403B] flex-shrink-0 mt-1" />
+            <div>
+              <p className="text-[#1C1917] font-medium leading-6 text-sm md:text-base">₦2,000 min order</p>
+              <p className="text-[#79716B] leading-6 text-sm">Delivering across campus halls</p>
+            </div>
           </div>
-        </div>
 
-        <div className="flex items-center gap-2 py-2">
-          <MessageCircle className="h-4 text-[#44403B]" />
-          <div>
-            <p className="text-[#1C1917] leading-6">Questions?</p>
-            <p className="text-[#79716B] leading-6">WhatsApp +234 810 685 8963</p>
+          {/* Info Box 3 */}
+          <div className="flex items-start gap-3 md:gap-4">
+            <MessageCircle className="h-5 md:h-6 text-[#44403B] flex-shrink-0 mt-1" />
+            <div>
+              <p className="text-[#1C1917] font-medium leading-6 text-sm md:text-base">Questions?</p>
+              <p className="text-[#79716B] leading-6 text-sm">WhatsApp +234 810 685 8963</p>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Menu Categories */}
-      <div className="py-10 flex flex-col gap-10">
+      <div className="px-4 md:px-8 lg:px-12 py-10 md:py-16 flex flex-col gap-10 md:gap-14">
         {filteredCategories.map((category) => (
           <CategorySection
             key={category.id}

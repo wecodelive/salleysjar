@@ -4,9 +4,9 @@ import { ShoppingBag } from 'lucide-react'
 
 export default function Header({ cartCount = 0, onCartClick }) {
     return (
-        <div className='px-4 py-2 flex items-center justify-between border-[#E7E5E4] border-b'>
+        <div className='px-4 md:px-8 lg:px-12 py-3 md:py-4 flex items-center justify-between border-[#E7E5E4] border-b'>
             <Image
-                className="h-[45px] w-auto "
+                className="h-[45px] w-auto"
                 src="/salleysjarLogonew.png"
                 alt="Salleysjar logo"
                 width={100}
@@ -18,9 +18,9 @@ export default function Header({ cartCount = 0, onCartClick }) {
                 onClick={onCartClick}
                 className="relative p-2 hover:opacity-70 transition-opacity"
             >
-                <ShoppingBag className='h-5 w-5 text-[#44403B]' />
+                <ShoppingBag className='h-6 w-6 md:h-6 md:w-6 text-[#44403B]' />
                 {cartCount > 0 && (
-                    <span className="absolute top-0 right-0 bg-[#1C1917] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    <span className="absolute top-0 right-0 bg-[#1C1917] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
                         {cartCount}
                     </span>
                 )}

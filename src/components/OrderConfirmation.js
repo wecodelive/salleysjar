@@ -4,7 +4,7 @@ import { useState } from "react";
 
 export default function OrderConfirmation({ customerName, onBackToShop }) {
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-[#F5F5F5] flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-lg p-8 max-w-md w-full text-center">
                 {/* Order Placed Header */}
                 <div className="mb-8">
@@ -32,9 +32,7 @@ export default function OrderConfirmation({ customerName, onBackToShop }) {
                     <p>
                         Pick us on WhatsApp or call our shop.
                     </p>
-                    <p className="font-medium text-[#1C1917]">
-                        From ₦50 ready on delivery
-                    </p>
+
                 </div>
 
                 {/* Back to Shop Button */}
