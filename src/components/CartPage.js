@@ -14,7 +14,7 @@ export default function CartPage({ isOpen, onClose, items = [], onOrderConfirmed
     const [activeTab, setActiveTab] = useState("basket");
     const [orderPlaced, setOrderPlaced] = useState(false);
     const [customerName, setCustomerName] = useState("");
-    const [dynamicDeliveryFee, setDynamicDeliveryFee] = useState(1500);
+    const [dynamicDeliveryFee, setDynamicDeliveryFee] = useState(0);
 
     if (!isOpen) return null;
 
@@ -31,7 +31,7 @@ export default function CartPage({ isOpen, onClose, items = [], onOrderConfirmed
     };
 
     const handleUpdateDeliveryFee = (fee) => {
-        setDynamicDeliveryFee(fee !== null && fee !== undefined ? fee : 1500);
+        setDynamicDeliveryFee(fee !== null && fee !== undefined ? fee : 0);
     };
 
     const subtotal = items.reduce((sum, item, idx) => {
@@ -40,7 +40,7 @@ export default function CartPage({ isOpen, onClose, items = [], onOrderConfirmed
     }, 0);
 
     const deliveryFee = dynamicDeliveryFee;
-    const minOrder = 2000;
+    const minOrder = 1000;
     const total = subtotal + deliveryFee;
     const remaining = Math.max(0, minOrder - subtotal);
 

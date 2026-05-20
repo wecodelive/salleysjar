@@ -10,7 +10,7 @@ export const menuItems = {
                     description: "Crispy golden parcels with savoury filling.",
                     price: 250,
                     unit: "each",
-                    time: 15,
+                    time: 10,
                     image: "/images/samosa.png",
                 },
                 {
@@ -19,7 +19,7 @@ export const menuItems = {
                     description: "Crunchy rolls packed with seasoned veggies.",
                     price: 250,
                     unit: "each",
-                    time: 15,
+                    time: 10,
                     image: "/images/spring-roll.png",
                 },
                 {
@@ -37,7 +37,7 @@ export const menuItems = {
                     description: "A pack of 10 freshly fried puff puff.",
                     price: 1500,
                     unit: "pack",
-                    time: 25,
+                    time: 10,
                     image: "/images/puff-puff-packs.png",
                 },
                 {
@@ -46,7 +46,7 @@ export const menuItems = {
                     description: "Lightly sweet, deep-fried dough balls.",
                     price: 100,
                     unit: "each",
-                    time: 20,
+                    time: 10,
                     image: "/images/buns.png",
                 },
             ],
@@ -61,7 +61,7 @@ export const menuItems = {
                     description: "Tender, well-seasoned grilled chicken.",
                     price: 1500,
                     unit: "portion",
-                    time: 30,
+                    time: 10,
                     image: "/images/chicken.png",
                 },
                 {
@@ -70,7 +70,7 @@ export const menuItems = {
                     description: "Spiced beef on a skewer, grilled to perfection.",
                     price: 1000,
                     unit: "stick",
-                    time: 25,
+                    time: 10,
                     image: "/images/stick-meats.png",
                 },
             ],
@@ -148,7 +148,7 @@ export const menuItems = {
                     description: "1 Samosa, 1 Spring Roll, 5 Puff Puff, 1 Stick Meat",
                     price: 2200,
                     unit: "combo",
-                    time: 30,
+                    time: 15,
                     image: "/images/combo-economy.png",
                 },
                 {
@@ -166,7 +166,7 @@ export const menuItems = {
                     description: "1 Samosa, 1 Spring Roll, 5 Puff Puff, 1 Stick Meat, 1 Chicken",
                     price: 3500,
                     unit: "combo",
-                    time: 35,
+                    time: 15,
                     image: "/images/combo-classic.png",
                 },
                 {
@@ -175,7 +175,7 @@ export const menuItems = {
                     description: "2 Samosa, 2 Spring Roll, 8 Puff Puff, 2 Stick Meat, 1 Chicken",
                     price: 5500,
                     unit: "combo",
-                    time: 40,
+                    time: 15,
                     image: "/images/combo-premium.png",
                 },
                 {
@@ -184,7 +184,7 @@ export const menuItems = {
                     description: "10 Puff Puff, 1 BBQ Chicken",
                     price: 2500,
                     unit: "combo",
-                    time: 25,
+                    time: 15,
                     image: "/images/combo-no-wahala.png",
                 },
                 {
@@ -193,7 +193,7 @@ export const menuItems = {
                     description: "5 Samosa, 5 Spring Roll, 15 Puff Puff, 1 Stick Meat, 2 BBQ Chicken",
                     price: 9000,
                     unit: "combo",
-                    time: 50,
+                    time: 15,
                     image: "/images/combo-no-wahala.png",
                     // image: "/images/combo-big-salley.png",
                 },

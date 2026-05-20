@@ -64,7 +64,7 @@ export default function Home() {
       {/* Hero Section */}
       <div className="px-4 md:px-8 lg:px-12 py-8 md:py-12 flex flex-col gap-3 md:gap-4 border-[#E7E5E4] border-b">
         <h3 className="text-[#79716B] leading-6 tracking-[4.8px] text-sm">
-          HALL WEEK • PRE-ORDER
+          NOW RUNINNING HALL WEEK 2026 SPECIALS AT MAKAMA HALL
         </h3>
 
         <p className="text-[#1C1917] font-medium text-2xl md:text-3xl lg:text-4xl leading-9 md:leading-12 max-w-3xl">
@@ -84,8 +84,8 @@ export default function Home() {
           <div className="flex items-start gap-3 md:gap-4">
             <Clock className="h-5 md:h-6 text-[#44403B] flex-shrink-0 mt-1" />
             <div>
-              <p className="text-[#1C1917] font-medium leading-6 text-sm md:text-base">Order by 4pm</p>
-              <p className="text-[#79716B] leading-6 text-sm">Same-day delivery</p>
+              <p className="text-[#1C1917] font-medium leading-6 text-sm md:text-base">Order by before 6pm</p>
+              <p className="text-[#79716B] leading-6 text-sm">For same-day delivery</p>
             </div>
           </div>
 
@@ -93,7 +93,7 @@ export default function Home() {
           <div className="flex items-start gap-3 md:gap-4">
             <MapPin className="h-5 md:h-6 text-[#44403B] flex-shrink-0 mt-1" />
             <div>
-              <p className="text-[#1C1917] font-medium leading-6 text-sm md:text-base">₦2,000 min order</p>
+              <p className="text-[#1C1917] font-medium leading-6 text-sm md:text-base">₦1,000 min order</p>
               <p className="text-[#79716B] leading-6 text-sm">Delivering across campus halls</p>
             </div>
           </div>
