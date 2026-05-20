@@ -30,37 +30,62 @@ export async function POST(req) {
             );
         }
 
-        // Create order with buyer (connectOrCreate)
+        // Find existing buyer
+        let buyer = await prisma.buyer.findUnique({
+            where: { email },
+        });
+
+        // Create if missing
+        if (!buyer) {
+            buyer = await prisma.buyer.create({
+                data: {
+                    email,
+                    phone,
+                    fullName,
+                    address: address || null,
+                    city: city || null,
+                },
+            });
+        }
+
+        // Create order first
         const order = await prisma.order.create({
             data: {
-                buyer: {
-                    connectOrCreate: {
-                        where: { email },
-                        create: {
-                            email,
-                            phone,
-                            fullName,
-                            address: address || null,
-                            city: city || null,
-                        },
-                    },
-                },
-                items: {
-                    create: items.map((item) => ({
-                        name: item.name,
-                        price: item.price,
-                        quantity: item.quantity,
-                    })),
-                },
-                subtotal,
-                deliveryFee,
-                total,
+                buyerId: buyer.id,
+
+                subtotal: Number(subtotal),
+                deliveryFee: Number(deliveryFee),
+                total: Number(total),
+
                 paymentMethod,
-                status: "fulfilled",
+                status: "pending",
+
                 deliveryMode,
-                deliveryDate: deliveryDate ? new Date(deliveryDate) : null,
+                deliveryDate: deliveryDate
+                    ? new Date(deliveryDate)
+                    : null,
+
                 deliveryTime: deliveryTime || null,
                 notes: notes || null,
+            },
+        });
+
+        // Create items separately
+        if (items.length > 0) {
+            await prisma.orderItem.createMany({
+                data: items.map((item) => ({
+                    orderId: order.id,
+                    name: item.name,
+                    price: Number(item.price),
+                    quantity: Number(item.quantity),
+                })),
+            });
+        }
+
+        // Fetch complete order
+        const fullOrder = await prisma.order.findUnique({
+            where: {
+                id: order.id,
             },
             include: {
                 buyer: true,
@@ -69,7 +94,7 @@ export async function POST(req) {
         });
 
         // Send order notification email to seller (fire-and-forget)
-        sendOrderNotificationEmail(order).catch((error) => {
+        sendOrderNotificationEmail(fullOrder).catch((error) => {
             console.error("Email notification failed:", error);
             // Don't block order creation if email fails
         });
@@ -79,7 +104,7 @@ export async function POST(req) {
                 success: true,
                 message: "Order created successfully",
                 orderId: order.id,
-                order,
+                order: fullOrder,
             },
             { status: 201 }
         );
